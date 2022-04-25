@@ -1,0 +1,174 @@
+<.form let={f} for={@changeset} 
+  phx-change="validate"
+  phx-submit="save" 
+  id="product-form">
+
+  <nav class="bg-black">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="relative flex items-center justify-between h-16">
+        <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
+            <div class="flex-shrink-0 flex items-center">
+            <p class="text-white">Produto não salvo</p>
+            </div>
+        </div>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            
+            <!-- Profile dropdown -->
+            <div class="ml-3 relative">
+                <div>
+                    <div class="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+                    <a href="http://localhost:4000/products" class=" ml-2 text-white font-medium rounded-md shadow-sm px-4 py-2 border border-transparent bg-gray-600 hover:bg-green-800" > Descartar </a>
+                    <a href="http://localhost:4000/products"> 
+                        <%= submit "Salvar", class: "ml-2 text-white font-medium rounded-md shadow-sm px-4 py-2 border border-transparent bg-gray-600 hover:bg-green-800", phx_disable_with: "Saving..." %>
+                    </a>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+        </div>
+   </nav>
+
+  <div class="grid grid-rows-1 px-4 py-5 bg-gray-200 space-y-6 sm:p-3 font-bold">
+    <div class="container-lg w-full rol-span-3 mt-1 flex px-3">
+      <a href="http://localhost:4000/products">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2">
+          <path  stroke-linecap="round" stroke-linejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/>
+        </svg>
+      </a>
+      <div class="font-bold ml-3">
+        Adicionar produto
+      </div>
+    </div>
+  </div>
+
+  <div class="relative w-full md:grid md:grid-cols-3 p-2
+              md:gap-4 grid-rows-1 shadow-lg bg-gray-200">
+  
+  <div class="grid grid-rows-1 col-start-1 col-span-2">
+    <div class="grid grid-rows-1 px-4 py-5 space-y-6 sm:p-3 bg-gray-200">
+          <div class="">
+            <div class="px-4 py-5 bg-gray-200 space-y-6 sm:p-2">
+                <div class="col-span-3 sm:col-span-2 shadow pb-3">
+                  <label for="product-form" 
+                  class="block py-1 text-base 
+                  font-medium text-dark"> Título </label>
+                  <%= text_input f, :title, class: " #{error_ring(f, :title)}", 
+                  placeholder: "Ex.: Camiseta de manga curta", phx_debounce: "blur" %>
+                  <%= error_tag f, :title, class: "text-red-500 border text-sm" %>
+                </div>
+              <div class="bg-gray-200 px-0 py-5 space-y-6  text-left shadow sm:overflow-hidden">
+                <label for="description" class="bg-gray-200 px-0 block text-base font-medium "> Descrição </label>
+                <div class="mt-1">
+                  <%= textarea f, :description, 
+                  class: " #{error_ring(f, :description)}", phx_debounce: "blur",
+                  placeholder: "Insira a descrição do item aqui..." %>
+                  <%= error_tag f, :description, class: "text-red-500 border text-sm"  %>
+                </div>
+              </div>
+            <div class="justify-center">
+                <label class="block text-base font-medium text-gray-700"> Mídia </label>
+                <div class="grid grid-rows-2 mt-1 flex justify-center text-center px-6 pt-5 pb-6 border-2 border-gray-400 border-solid rounded-md">
+                  <div class="grid row-start-1">
+                    <%= for entry <- @uploads.photo.entries do %>
+                      <div class="entry justify-center mx-auto">
+                        <%= live_img_preview entry, width: 50 %>
+                        <a href="#" phx-click="cancel" phx-value-ref={ entry.ref } >
+                          <span style="font-size: 30px">&times;</span>
+                        </a>
+                      </div>
+                    <%= for {_ref, err} <- @uploads.photo.errors do %>
+                      <div class="error">
+                        <%= humanize(err) %>
+                      </div>
+                    <% end %>
+                    <% end %>
+                  </div>
+                  <div class="space-y-1">
+                    <div class="grid row-start-2 flex text-sm text-gray-600">
+                      <div id="photos" phx-update="prepend">
+                        <%# <%= inspect(@uploads.photo) %>
+                        <%= for product <- @products do %>
+                        <%= for { photo_url } <- Enum.with_index(product.media) do %>
+                        <div class="photo" id={ product.id }>
+                          <img src={photo_url} >
+                          <div class="title">
+                          <%= product.title %>
+                          </div>
+                        </div>
+                        <% end %>
+                        <% end %>
+                    </div>
+                        <div class="drop" phx-drop-target={@uploads.photo.ref} >
+                        <%= live_file_input @uploads.photo,
+                        class: "bg-gray-200 relative cursor-pointer rounded-md 
+                        font-medium text-blue-600 hover:text-blue-500 
+                        focus-within:outline-none focus-within:ring-2 
+                        focus-within:ring-offset-2 focus-within:ring-blue-500" %>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500">Aceita imagens, vídeos ou modelos 3D</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+    </div>
+  </div>
+
+  <div class="mt-5 md:mt-0 md:col-span-2 mx-5 px-3 bg-gray-200 shadow">
+      <label for="price" class="px-4 text-base font-medium "> Preço </label>
+          <div class="px-0 py-5 sm:p-5 bg-gray-200">
+            <div class="grid grid-cols-6 gap-6 ">
+              <div class="col-span-5 sm:col-span-3 ">
+                <label for="price" class="px-0 mt-3 mb-3 text-sm font-medium "> Preço </label> 
+                  <%= number_input f, :price, step: "any", class: " #{error_ring(f, :price)}", 
+                  placeholder: "Ex.: 0.00", phx_debounce: "blur" %>
+                  <%= error_tag f, :category, class: "text-red-500 border text-sm" %>
+              </div>
+              <div class="col-span-5 sm:col-span-3">
+                <label for="price" class="px-0 mt-3 mb-3 text-sm font-medium "> Comparação de preços </label> 
+                <input type="text" name="price2" id="price2" class="out-of-range:border-red-500 focus:ring-indigo-500 focus:border-indigo-500 block pl-7 pr-4 sm:text-sm border-gray-300 rounded-md" placeholder="0.00">
+              </div>
+            </div>
+          </div>
+  </div>
+
+<div class="grid col-start-3 row-start-1 ">
+        <div class="">
+          <div class="px-4 py-5 bg-gray-200 space-y-1 sm:p-1">
+            <div class="px-4 py-3 text-left sm:px-1 shadow sm:rounded-md sm:overflow-hidden">
+                <div class="col-span-1 sm:col-span-1">
+                    <label for="" class="block text-base font-medium text-gray-700"> Status do produto </label>
+                        <%= select f, :status, ["Ativo", "Rascunho"], class: "w-full mt-3 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+                <div>
+            </div>
+          </div>
+                <p class="mt-3 text-sm text-dark">O produto ficará oculto em todos os canais de venda.</p>
+        </div>
+</div>
+          <div class="px-4 py-5 bg-gray-200 space-y-1 sm:p-1">
+            <div class="px-4 py-3 text-left sm:px-1 shadow sm:rounded-md sm:overflow-hidden">
+                <label for="" class="block text-base mb-3 font-medium text-gray-700"> Organização de produtos </label>
+                <label for="" class="block text-sm mb-3 font-medium text-gray-700"> 
+                  <%= text_input f, :category, class: " #{error_ring(f, :category)}", 
+                  placeholder: "Ex.: Tipo de pesquisa", phx_debounce: "blur" %>
+                  <%= error_tag f, :category, class: "text-red-500 border text-sm" %>
+                </label>
+            <div class="grid grid-cols-6 gap-6">
+              <div class="col-span-5 sm:col-span-3">
+                <label for="" class="inline-block text-left text-sm mb-3 font-medium text-gray-700"> TAGS </label>
+              </div>
+            </div>
+                <div class="w-full flex rounded-md mb-3 shadow-sm">
+                  <%= text_input f, :tags, class: " #{error_ring(f, :tags)}", 
+                  placeholder: "Ex.: Buscar ou criar tag", phx_debounce: "blur" %>
+                  <%= error_tag f, :tags, class: "text-red-500 border text-sm" %>
+                </div>
+              </div>
+            </div>
+            </div>
+      </div>
+    </div>
+</.form>
+
